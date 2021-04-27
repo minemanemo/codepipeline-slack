@@ -2,8 +2,11 @@ const https = require('https');
 
 exports.handler = (event, context, callback) => {
   const { Sns } = event.Records[0];
-  const message = Sns.Message || 'is not from SNS';
-  console.log('🚀 ', message);
+  const message = Sns.Message;
+  const data = message
+    ? JSON.parse(message)
+    : JSON.stringify({ text: 'is not from SNS' });
+  console.log('🚀 data: ', data);
 
   const options = {
     hostname: 'hooks.slack.com',
@@ -12,8 +15,6 @@ exports.handler = (event, context, callback) => {
     port: 443,
     headers: { 'Content-Type': 'application/json' },
   };
-
-  const data = JSON.stringify({ text: message });
 
   const req = https.request(options, (res) => {
     res.on('data', (d) => process.stdout.write(d));
