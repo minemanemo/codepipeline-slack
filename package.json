@@ -8,7 +8,13 @@
     "build": "tsc",
     "watch": "tsc -w",
     "test": "jest",
-    "cdk": "cdk"
+    "cdk": "cdk",
+    "deploy:dev": "cdk deploy DevelopmentStack --plugin \"cdk-multi-profile-plugin\"",
+    "deploy:prod": "cdk deploy ProductionStack --plugin \"cdk-multi-profile-plugin\"",
+    "synth:dev": "cdk synth DevelopmentStack --plugin \"cdk-multi-profile-plugin\"",
+    "synth:prod": "cdk synth ProductionStack --plugin \"cdk-multi-profile-plugin\"",
+    "diff:dev": "cdk diff DevelopmentStack --plugin \"cdk-multi-profile-plugin\"",
+    "diff:prod": "cdk diff ProductionStack --plugin \"cdk-multi-profile-plugin\""
   },
   "devDependencies": {
     "@aws-cdk/assert": "1.100.0",
@@ -24,7 +30,8 @@
     "prettier": "^2.2.1",
     "ts-jest": "^26.2.0",
     "ts-node": "^9.0.0",
-    "typescript": "~3.9.7"
+    "typescript": "~3.9.7",
+    "cdk-multi-profile-plugin": "^0.0.1"
   },
   "dependencies": {
     "@aws-cdk/aws-codepipeline": "^1.100.0",
@@ -36,5 +43,9 @@
     "@aws-cdk/core": "1.100.0",
     "dotenv": "^8.2.0",
     "source-map-support": "^0.5.16"
+  },
+  "awsProfiles": {
+    "643250700441": "default",
+    "316889374222": "production"
   }
 }

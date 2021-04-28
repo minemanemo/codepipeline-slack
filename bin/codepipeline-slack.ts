@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 import 'source-map-support/register';
 import * as cdk from '@aws-cdk/core';
+
 import { DevelopmentStack } from '../lib/development-stack';
-// import { ProductionStack } from '../lib/production-stack';
+import { ProductionStack } from '../lib/production-stack';
 
 import * as dotenv from 'dotenv';
 
@@ -17,9 +18,10 @@ new DevelopmentStack(app, 'DevelopmentStack', {
     region: process.env.CDK_DEFAULT_REGION,
   },
 });
-// new ProductionStack(app, 'ProductionStack', {
-//   env: {
-//     account: process.env.CDK_PRODUCTION_ACCOUNT,
-//     region: process.env.CDK_DEFAULT_REGION,
-//   },
-// });
+
+new ProductionStack(app, 'ProductionStack', {
+  env: {
+    account: process.env.CDK_PRODUCTION_ACCOUNT,
+    region: process.env.CDK_DEFAULT_REGION,
+  },
+});
