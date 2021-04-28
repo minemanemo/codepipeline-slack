@@ -47,24 +47,25 @@ export class ConnectPipelineToSns extends Construct {
     this.footerIconURL = `https://i2.wp.com/www.awsomeblog.com/wp-content/uploads/2016/05/aws-codepipeline.png?resize=150%2C150&ssl=1`;
 
     this.slackSendData = {
-      pretext: `⛓ Pipeline Name : *${this.pipeline.pipelineName}*`,
+      pretext: `:chains: Pipeline Name : *${this.pipeline.pipelineName}*`,
       footer: 'AWS CodePipeline',
       footer_icon: this.footerIconURL,
     };
     const defaultButton = {
       type: 'button',
-      text: '⚙️ Console 바로가기',
+      text: ':gear: Console URL',
       url: this.consoleURL,
     };
 
     eventOptions.map((option: CustomEventOptions, index: number) => {
       const eventId = `pipelineIdEvent${index}`;
+      const prevAction = option?.data?.actions || [];
       const msgData = {
         attachments: [
           {
             ...this.slackSendData,
             ...option.data,
-            actions: [defaultButton],
+            actions: [defaultButton, ...prevAction],
           },
         ],
       };

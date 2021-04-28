@@ -5,7 +5,11 @@ import { EventField } from '@aws-cdk/aws-events';
 import { SlackSNS } from './slack-sns-construct';
 import { ConnectPipelineToSns } from './connect-codepipeline-to-sns';
 
-export class CodepipelineSlackStack extends cdk.Stack {
+import { language } from './config/language';
+import { CODEPIPELINE_DETAIL_TYPE } from './config/codepipeline';
+import { SUCCESS_COLOR, CONFIRM_COLOR, FAIL_COLOR } from './config/slack';
+
+export class ProductionStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
@@ -24,59 +28,40 @@ export class CodepipelineSlackStack extends cdk.Stack {
     const stage = EventField.fromPath('$.detail.stage');
     const action = EventField.fromPath('$.detail.action');
     const state = EventField.fromPath('$.detail.state');
+    const failMessage = `${stage} ${action} ${state}`;
 
+    const { PRODUCTION } = language;
+
+    // ssp_database SQL
     new ConnectPipelineToSns(this, 'ADPlatform-SQL', {
       snsTopic: slackSns.topic,
-      codepipelineArn: `arn:aws:codepipeline:ap-northeast-2:643250700441:ADPlatform-SQL`,
+      codepipelineArn: process.env.ARN_PIPELINE_PRODUCTION || '',
       eventOptions: [
-        // Develop Success Message
+        // Manual Notice
         {
           data: {
-            color: '#69db7c',
-            author_name: `develop 환경의 ssp_database SQL 적용 성공 (flyway)`,
+            color: CONFIRM_COLOR,
+            author_name: PRODUCTION.MANUAL_REQ,
+            text: PRODUCTION.MANUAL_DESC,
           },
           eventPattern: {
-            detailType: ['CodePipeline Stage Execution State Change'],
-            detail: {
-              state: ['SUCCEEDED'],
-              stage: ['Apply_Develop_Enviroment'],
-            },
+            detailType: [CODEPIPELINE_DETAIL_TYPE.ACTION],
+            detail: { state: ['STARTED'], stage: ['Manual_Approve'] },
           },
         },
         // Staging Success Message
         {
-          data: {
-            color: '#69db7c',
-            author_name: `staging 환경의 ssp_database SQL 적용 성공 (flyway)`,
-          },
+          data: { color: SUCCESS_COLOR, author_name: PRODUCTION.DEPLOY },
           eventPattern: {
-            detailType: ['CodePipeline Stage Execution State Change'],
-            detail: {
-              state: ['SUCCEEDED'],
-              stage: ['Apply_Staging_Enviroment'],
-            },
-          },
-        },
-        // Manual Notice
-        {
-          data: {
-            color: '#4c6ef5',
-            author_name: `Staging 배포 수동 승인 요청`,
-            text: `Console에서 검토 버튼 클릭 시 staging 환경 배포를 시작합니다.`,
-          },
-          eventPattern: {
-            detailType: ['CodePipeline Action Execution State Change'],
-            detail: { state: ['STARTED'], stage: ['Manual'] },
+            detailType: [CODEPIPELINE_DETAIL_TYPE.STAGE],
+            detail: { state: ['SUCCEEDED'], stage: ['Deploy'] },
           },
         },
         // All Fail Message
         {
-          data: {
-            color: '#f03e3e',
-            author_name: `${stage} ${action} ${state}`,
-          },
+          data: { color: FAIL_COLOR, author_name: failMessage },
           eventPattern: {
-            detailType: ['CodePipeline Action Execution State Change'],
+            detailType: [CODEPIPELINE_DETAIL_TYPE.ACTION],
             detail: { state: ['FAILED', 'CANCELED', 'ABANDONED'] },
           },
         },

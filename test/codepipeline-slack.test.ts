@@ -1,13 +1,22 @@
-import { expect as expectCDK, matchTemplate, MatchStyle } from '@aws-cdk/assert';
+import {
+  expect as expectCDK,
+  matchTemplate,
+  MatchStyle,
+} from '@aws-cdk/assert';
 import * as cdk from '@aws-cdk/core';
-import * as CodepipelineSlack from '../lib/codepipeline-slack-stack';
+import * as Development from '../lib/development-stack';
 
 test('Empty Stack', () => {
-    const app = new cdk.App();
-    // WHEN
-    const stack = new CodepipelineSlack.CodepipelineSlackStack(app, 'MyTestStack');
-    // THEN
-    expectCDK(stack).to(matchTemplate({
-      "Resources": {}
-    }, MatchStyle.EXACT))
+  const app = new cdk.App();
+  // WHEN
+  const stack = new Development.DevelopmentStack(app, 'MyTestStack');
+  // THEN
+  expectCDK(stack).to(
+    matchTemplate(
+      {
+        Resources: {},
+      },
+      MatchStyle.EXACT
+    )
+  );
 });
